@@ -1,0 +1,28 @@
+name: "Ubuntu opennms horizon CI workflow"
+
+
+on:
+  push:
+    branches: [ dev ]
+jobs:
+  
+      
+#https://docs.opennms.org/opennms/releases/latest/guide-install/guide-install.html#_installing_on_debian
+  ubuntu-2004-opennms-job:
+    name: "ubuntu-20.04 opennms job"
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: "os fingerprinting"
+      run: hostnamectl status 
+    - name: "Install Required Packages"
+      run: sudo apt-get install -qqy software-properties-common
+    - name: "Add apt repository in /etc/apt/sources.list.d/opennms.list and add GPG key"
+      run: |
+        cat << EOF | sudo tee /etc/apt/sources.list.d/opennms.list
+        deb https://debian.opennms.org stable main
+        deb-src https://debian.opennms.org stable main
+        EOF
+        wget -O - https://debian.opennms.org/OPENNMS-GPG-KEY | apt-key add -
+        sudo apt-get update -qq
+        sudo apt-get -yqq install opennms
